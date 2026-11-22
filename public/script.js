@@ -115,6 +115,47 @@ nav.querySelectorAll("a").forEach((a) =>
   requestAnimationFrame(tick);
 })();
 
+/* ---------- Ilustrações do carrossel no celular ----------
+   No celular, cada ilustração (com os cartões flutuantes) é reduzida
+   para caber no espaço livre abaixo do texto do slide. */
+const visuals = [...document.querySelectorAll(".slide__visual")].map((visual) => {
+  const stage = document.createElement("div");
+  stage.className = "visual__stage";
+  while (visual.firstChild) stage.appendChild(visual.firstChild);
+  visual.appendChild(stage);
+  return { visual, stage };
+});
+const MOBILE = window.matchMedia("(max-width: 860px)");
+function fitVisuals() {
+  visuals.forEach(({ visual, stage }) => {
+    stage.style.transform = "";
+    if (!MOBILE.matches) return;
+    const box = visual.getBoundingClientRect();
+    if (box.height < 40) return;
+    // área ocupada pela ilustração + cartões flutuantes
+    let l = Infinity, t = Infinity, r = -Infinity, b = -Infinity;
+    stage.querySelectorAll(":scope > *").forEach((el) => {
+      const q = el.getBoundingClientRect();
+      l = Math.min(l, q.left); t = Math.min(t, q.top); r = Math.max(r, q.right); b = Math.max(b, q.bottom);
+    });
+    const st = stage.getBoundingClientRect();
+    const w = r - l, h = b - t;
+    const k = Math.min(box.width / w, box.height / h, 1) * 0.94;
+    const tx = box.left + (box.width - w * k) / 2 - st.left - (l - st.left) * k;
+    const ty = box.top + (box.height - h * k) / 2 - st.top - (t - st.top) * k;
+    stage.style.transform = `translate(${tx}px, ${ty}px) scale(${k})`;
+  });
+}
+fitVisuals();
+window.addEventListener("resize", fitVisuals);
+window.addEventListener("load", fitVisuals);
+document.fonts?.ready.then(fitVisuals);
+
+// no celular, os botões flutuantes somem enquanto o carrossel está na tela
+// (para não cobrir as ilustrações) e voltam ao rolar a página
+new IntersectionObserver(([e]) => document.body.classList.toggle("at-hero", e.intersectionRatio > 0.6), { threshold: [0, 0.6, 1] })
+  .observe(document.getElementById("inicio"));
+
 /* ---------- Reveal ao rolar ---------- */
 const io = new IntersectionObserver(
   (entries) => entries.forEach((e) => {
