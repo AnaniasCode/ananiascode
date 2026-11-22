@@ -55,11 +55,24 @@ nav.querySelectorAll("a").forEach((a) =>
     return b;
   });
 
-  function go(i) {
-    index = (i + slides.length) % slides.length;
+  function go(i, dir = i >= index ? 1 : -1) {
+    const next = (i + slides.length) % slides.length;
+    const prevSlide = slides[index];
+    const nextSlide = slides[next];
+    if (next !== index) {
+      // posiciona o próximo slide do lado certo antes de deslizar
+      nextSlide.style.transition = "none";
+      nextSlide.style.transform = `translateX(${dir * 100}%)`;
+      void nextSlide.offsetWidth;
+      nextSlide.style.transition = "";
+      nextSlide.style.transform = "";
+      prevSlide.style.transform = `translateX(${-dir * 100}%)`;
+    }
+    index = next;
     slides.forEach((s, n) => {
       s.classList.toggle("is-active", n === index);
       s.setAttribute("aria-hidden", String(n !== index));
+      if (n === index) s.style.transform = "";
     });
     dots.forEach((d, n) => d.setAttribute("aria-selected", String(n === index)));
     start = performance.now();
@@ -70,7 +83,7 @@ nav.querySelectorAll("a").forEach((a) =>
     if (!paused) {
       const p = Math.min((now - start) / DURATION, 1);
       progress.style.width = `${p * 100}%`;
-      if (p >= 1) go(index + 1);
+      if (p >= 1) go(index + 1, 1);
     }
     requestAnimationFrame(tick);
   }
@@ -78,15 +91,13 @@ nav.querySelectorAll("a").forEach((a) =>
   const pause = () => { if (!paused) { paused = true; elapsedBeforePause = performance.now() - start; } };
   const resume = () => { if (paused) { paused = false; start = performance.now() - elapsedBeforePause; } };
 
-  document.getElementById("heroPrev").addEventListener("click", () => go(index - 1));
-  document.getElementById("heroNext").addEventListener("click", () => go(index + 1));
-  hero.addEventListener("mouseenter", pause);
-  hero.addEventListener("mouseleave", resume);
+  document.getElementById("heroPrev").addEventListener("click", () => go(index - 1, -1));
+  document.getElementById("heroNext").addEventListener("click", () => go(index + 1, 1));
   document.addEventListener("visibilitychange", () => (document.hidden ? pause() : resume()));
   document.addEventListener("keydown", (e) => {
     if (window.scrollY > window.innerHeight / 2) return;
-    if (e.key === "ArrowRight") go(index + 1);
-    if (e.key === "ArrowLeft") go(index - 1);
+    if (e.key === "ArrowRight") go(index + 1, 1);
+    if (e.key === "ArrowLeft") go(index - 1, -1);
   });
 
   // swipe
@@ -95,11 +106,12 @@ nav.querySelectorAll("a").forEach((a) =>
   hero.addEventListener("touchend", (e) => {
     if (x0 === null) return;
     const dx = e.changedTouches[0].clientX - x0;
-    if (Math.abs(dx) > 50) go(index + (dx < 0 ? 1 : -1));
+    if (Math.abs(dx) > 50) go(index + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
     x0 = null;
   });
 
-  go(0);
+  slides.forEach((s, n) => s.classList.toggle("is-active", n === 0));
+  go(0, 1);
   requestAnimationFrame(tick);
 })();
 
@@ -117,7 +129,7 @@ document.querySelectorAll(".reveal").forEach((el, i) => {
 
 /* ---------- Prévia ao vivo dos sites (escala do iframe) ---------- */
 const scaleFrames = () => {
-  document.querySelectorAll(".work__frame").forEach((frame) => {
+  document.querySelectorAll(".work__frame, .shot__screen").forEach((frame) => {
     const iframe = frame.querySelector("iframe");
     if (iframe) iframe.style.transform = `scale(${frame.clientWidth / 1440})`;
   });
