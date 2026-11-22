@@ -263,7 +263,7 @@ form.addEventListener("submit", async (e) => {
     try { await navigator.clipboard.writeText(message); copied = true; } catch (_) {}
     modalText.innerHTML = copied
       ? "Seu pré-cadastro foi <b>copiado</b>! No WhatsApp, é só <b>colar</b> a mensagem e enviar."
-      : "Abrimos o WhatsApp. Envie seus dados por lá que eu te respondo rapidinho!";
+      : "Abrimos o WhatsApp. Envie seus dados por lá que respondemos rapidinho!";
   }
 
   modalOpenWa.href = url;
