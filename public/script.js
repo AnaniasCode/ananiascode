@@ -13,31 +13,6 @@
 const WHATSAPP_NUMBER = "5517981084794";
 const WHATSAPP_LINK = "https://api.whatsapp.com/message/RUU6A45G6QD7J1?autoload=1&app_absent=0";
 
-/* ---------- Tema claro / escuro ---------- */
-(() => {
-  const root = document.documentElement;
-  const btn = document.getElementById("themeToggle");
-  const meta = document.querySelector('meta[name="theme-color"]');
-  const apply = (t) => {
-    root.setAttribute("data-theme", t);
-    btn.setAttribute("aria-pressed", String(t === "dark"));
-    btn.setAttribute("aria-label", t === "dark" ? "Mudar para tema claro" : "Mudar para tema escuro");
-    if (meta) meta.setAttribute("content", t === "dark" ? "#0c0617" : "#6d28d9");
-  };
-  apply(root.getAttribute("data-theme") === "dark" ? "dark" : "light");
-  btn.addEventListener("click", () => {
-    const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
-    apply(next);
-    try { localStorage.setItem("theme", next); } catch (e) {}
-  });
-  // acompanha o sistema enquanto o visitante não escolher manualmente
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
-    let saved = null;
-    try { saved = localStorage.getItem("theme"); } catch (_) {}
-    if (!saved) apply(e.matches ? "dark" : "light");
-  });
-})();
-
 /* ---------- Header ---------- */
 const header = document.getElementById("header");
 const onScroll = () => header.classList.toggle("is-scrolled", window.scrollY > 40);
@@ -240,14 +215,14 @@ form.addEventListener("submit", async (e) => {
 
   if (WHATSAPP_NUMBER) {
     url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-    modalText.innerHTML = "Abrimos o WhatsApp com seu pré-cadastro preenchido. É só tocar em <b>enviar</b>! 💜";
+    modalText.innerHTML = "Abrimos o WhatsApp com seu pré-cadastro preenchido. É só tocar em <b>enviar</b>!";
   } else {
     url = WHATSAPP_LINK;
     let copied = false;
     try { await navigator.clipboard.writeText(message); copied = true; } catch (_) {}
     modalText.innerHTML = copied
-      ? "Seu pré-cadastro foi <b>copiado</b>! No WhatsApp, é só <b>colar</b> a mensagem e enviar. 💜"
-      : "Abrimos o WhatsApp. Envie seus dados por lá que eu te respondo rapidinho! 💜";
+      ? "Seu pré-cadastro foi <b>copiado</b>! No WhatsApp, é só <b>colar</b> a mensagem e enviar."
+      : "Abrimos o WhatsApp. Envie seus dados por lá que eu te respondo rapidinho!";
   }
 
   modalOpenWa.href = url;
