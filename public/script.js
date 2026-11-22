@@ -10,7 +10,7 @@
  * Se ficar vazio, o site copia a mensagem e abre o seu link comercial
  * (o cliente só precisa colar e enviar).
  */
-const WHATSAPP_NUMBER = "";
+const WHATSAPP_NUMBER = "5517981084794";
 const WHATSAPP_LINK = "https://api.whatsapp.com/message/RUU6A45G6QD7J1?autoload=1&app_absent=0";
 
 /* ---------- Header ---------- */
